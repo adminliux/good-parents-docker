@@ -1,4 +1,4 @@
-FROM tomcat:9.0.16-jre8
+FROM tomcat
 ARG TOMCAT=/usr/local/tomcat
 ARG TOMCAT_CONF=${TOMCAT}/conf
 ARG WEBAPPS=${TOMCAT}/webapps
