@@ -1,15 +1,14 @@
-var urlList = '';
-
-
+//noinspection SpellCheckingInspection
 (function (global) {
-    //var apiHost = global.apiHost,
-    frontColorKey = "frontColor";
+    var apiHost = global.apiHost,
+        frontColorKey = "frontColor",
+        TOKEN_COOKIE_NAME = "H5_TOKEN";
 
     var project = function (apiType, source) {
         global.apiType = apiType;
         if (!cm.stringIsEmpty(apiType)) {
             if (apiType === "API") {
-                //apiHost = apiHost + "/api/json";
+                apiHost = apiHost + "/api/json";
             }
         }
         global.source = source;
@@ -17,33 +16,38 @@ var urlList = '';
 
     project.prototype = {
         /**
+         * @returns {string} API前撮地址
+         */
+        apiFix: function () {
+            return apiHost;
+        },
+        /**
          * 前段颜色显示
          */
         frontColor: function () {
             var color = localStorage[frontColorKey];
-
-            if (color == null) {
-                Project.ajax("/config/front/color", {}, {
-                    async: false
-                }).ajaxOK(function (data) {
-                    localStorage[frontColorKey] = data.data;
-                }, false, false);
-            }
-            $("head").append($('<style>.public-red{background:' + color + ' !important;}</style>'));
-        },
-        ajaxGet: function (url, data, setting, isLocal) {
-            setting = setting || {};
-            setting['type'] = "GET";
-            return this.ajax(url, data, setting, isLocal);
+            localStorage.removeItem(frontColorKey);
+            /**
+             * if (color == null) { Project.ajax("/config/front/color", {}, {
+			 * async: false }).ajaxOK(function (data) {
+			 * localStorage[frontColorKey] = data.data; }, false, false); }
+             * $("head").append($('<style>.public-red{background:' + color + '
+			 * !important;}</style>'));
+             */
         },
         /**
          * ajax请求数据
-         * @param {Object} url 地址
-         * @param {Object} data 参数
-         * @param setting jquery参数
-         * @param isLocal 是否是项目内AJAX
+         * @param url   url 地址
+         * @param data  data 参数
+         * @param setting
+         *            jquery参数
+         * @param isLocal
+         *            是否是项目内AJAX
+         * @param isFile 是否文件上传
+         * @param error 失败回掉
+         * @param notWait 是否取消等待框
          */
-        ajax: function (url, data, setting, isLocal) {
+        ajax: function (url, data, setting, isLocal, isFile, error, notWait) {
             data = data || {};
 
             var realUrl = apiHost + url,
@@ -55,71 +59,186 @@ var urlList = '';
                 }
                 realUrl = url;
             }
-            if (cm.isWX()) {
-                global.source = "WECHAT";
-            }
+
+
             var d = {
-                source: global.source
+                source: source,
+                CORSDomain: location.protocol + "//" + location.host
             };
+            var paramType = 0;
+
             var dataType = Object.prototype.toString.call(data);
             if (dataType === "[object String]") {
                 data += "&" + cm.parseParam(d);
+                paramType = 1;
             } else if (dataType === "[object FormData]") {
+                paramType = 1;
                 for (var dn in d) {
-                    if (d[dn] != null) {
-                        data[dn] = d[dn]
+                    if (d[dn] !== null) {
+                        data.append(dn, d[dn]);
                     }
                 }
             } else {
+                paramType = 3;
+                cm.objRemoveUnit(data);
                 data = $.extend(d, data);
             }
-            for (var key in data) {
-                var _v = data[key];
-                if (_v === "" || _v === null) delete data[key];
-            }
-            console.log("===================测试===================" + realUrl);
             var opt = {
                 data: data,
                 type: 'post', // HTTP请求类型
-                timeout: 0, // 超时时间设置为10秒；
+                timeout: 0, // 永不超时
                 success: function (data) {
+                    if (!notWait) hideProgress();
                     console.log(JSON.stringify(data));
-
-//                    获取商品上传地址
-                    var imgUrl = data.data;
-                    if (imgUrl !== '[object Object]' && imgUrl != null) {
-                        urlList += imgUrl + ",";
-                    }
                     p.done(data);
-
                 },
                 url: realUrl,
                 error: function (xhr) {
-                    //异常处理；
-                    alert('接口调用失败：\ncode:' + xhr.status);
+                    hideProgress();
+                    var code = xhr.status;
+                    toast("请求失败[code=" + code + "]\n" + http.codeDesc(code));
+                },
+                xhrFields: {
+                    withCredentials: true
+                },
+                beforeSend: function () {
+                    if (!notWait) showProgress("努力加载中", "请稍后...");
                 }
             };
             if (apiType === "API") {
                 opt.dataType = "json";
             }
-            if (setting != null) {
+            if (setting === null) {
+            } else {
                 opt = cm.merge(opt, setting);
             }
-            console.log(JSON.stringify(opt));
-            $.ajax(opt);
+            if (isFile)
+                paramType = 2;
+
+            if (paramType !== 2) {
+                try {
+                    $.ajax(opt);
+                } catch (e) {
+                    toast("没有网络连接请检查网络");
+                    console.log(e);
+                }
+            } else {
+                if (!notWait) showProgress("努力加载中", "请稍后...");
+
+                var paramData = {};
+                switch (paramType) {
+                    case 1:
+                        paramData.body = data;
+                        break;
+                    case 2:
+                        paramData.files = data;
+                        break;
+                    case 3:
+                        paramData.values = data;
+                        break;
+                    default:
+                        console.log("参数类似" + paramType + "不做处理");
+                }
+
+                var apiData = {
+                    url: realUrl,
+                    method: 'post',
+                    data: paramData,
+                    dataType: "JSON",
+                    timeout: 99999999999999999
+                };
+                apiData = $.extend(true, apiData, setting);
+                cm.objRemoveUnit(apiData.data.values);
+                console.log(JSON.stringify(apiData));
+                api.ajax(apiData, function (ret, err) {
+                    function doneCompile() {
+                        if (apiData.compile) apiData.compile(ret, err);
+                    }
+
+                    if (!notWait) hideProgress();
+                    if (err) {
+                        console.log(JSON.stringify(err));
+                        doneCompile();
+                        alert(err.msg || "请求错误");
+                        if (error) error(err);
+                    } else {
+                        if (apiData.report) {
+                            console.log(JSON.stringify(ret));
+                            if (apiData.onpProgress) apiData.onpProgress(ret.progress);
+                            if (ret.body) {
+                                var code = ret.statusCode;
+                                if (code && code !== 200) {
+                                    toast("请求失败[code=" + code + "]\n" + http.codeDesc(code));
+                                } else {
+                                    p.done(ret.body);
+                                    doneCompile();
+                                }
+                            }
+                        } else {
+                            doneCompile();
+                            p.done(ret);
+                        }
+                    }
+                });
+            }
             return p;
+        },
+        globalAdmin: function (type, last) {
+            last = last || "";
+            return '/global/admin/' + type + last;
+        },
+        globalAdminUrl: function (type, last) {
+            return this.apiFix() + this.globalAdmin(type, last) + "?type=" + type;
+        },
+        ajaxNoWait: function (url, data, setting, isLocal, isFile, error) {
+            return this.ajax(url, data, setting, isLocal, isFile, error, true);
+        },
+        ajaxCityQueryByName: function (data, setting) {
+            return this.ajax('/region/query/by/name', data, setting);
+        },
+        ajaxCityQueryByName_: function (name, setting) {
+            return this.ajax('/region/query/by/name', {cityName: name}, setting);
+        },
+        /**
+         * 新闻动态/物资行情
+         * @param {Object} fd 参数
+         * @param {Object} setting 设置
+         */
+        ajaxMarketSupplie: function (fd, setting) {
+            return this.ajax('/market/supplie/get/list', fd, setting);
+        },
+        /**
+         * 加载下拉框
+         * @param {Object} type 类型
+         * @param {Object} fn 回调
+         */
+        ajaxSelect: function (type, fn) {
+            Project.ajax("/drop/down/data/get/list").ajaxOK(function (d) {
+                d = d.data;
+                $(d).each(function () {
+                    if (this.type === type) {
+                        if (fn) fn(this);
+                        return false;
+                    }
+                });
+            });
         },
         /**
          * ajax请求数据
-         * @param {Object} url 地址
-         * @param {Object} data 参数
-         * @param setting jquery参数
+         *
+         * @param {Object}
+         *            url 地址
+         * @param {Object}
+         *            data 参数
+         * @param setting
+         *            jquery参数
          */
         ajaxPage: function (url, data, setting) {
             var fileSetting = {
                 processData: false,
                 contentType: false,
-                dataType: "text"
+                dataType: "text",
+                type: "post"
             };
             if (setting != null) {
                 fileSetting = cm.merge(fileSetting, setting)
@@ -127,177 +246,392 @@ var urlList = '';
             return this.ajaxLocal(pathPage + url, data, fileSetting);
         },
         /**
-         * ajax请求数据
-         * @param {Object} url 地址
+         * 地址
+         * @param {Object} code 城市CODE
+         * @param {Object} su 成功回调
+         */
+        addressSimple: function (code, su) {
+            this.ajax('/region/select/simple/by/region/code', {
+                code: code
+            }).ajaxOK(function (data) {
+                if (su) su(data.data)
+            });
+        },
+        /**
+         * 系统消息数量
+         * @param {Object} ok 成功回调
+         */
+        ajaxSysMsgSum: function (ok) {
+            ok = ok || function () {
+            };
+            this.ajax("/sys/message/get/count").ajaxOK(function (d) {
+                d = d.data;
+                ok(d);
+            });
+        },
+        ajaxUploadVideoParse: function (data, setting) {
+            return this.ajaxUploadFileUrl("/on/demand//trans/coding", data, setting);
+        },
+        /**
+         * 银行卡列表
          * @param {Object} data 参数
-         * @param setting jquery参数
+         * @param {Object} setting 配置
+         */
+        ajaxBankCardList: function (data, setting) {
+            return this.ajax('/bank/card/get/list', data, setting);
+        },
+        /**
+         * 一张银行卡
+         */
+        ajaxBankCard: function (data, set) {
+            return this.ajax('/user/bank/card/bind/alr/bind/card', data, set);
+        },
+        /**
+         * ajax请求数据
+         *
+         * @param {Object}
+         *            url 地址
+         * @param {Object}
+         *            data 参数
+         * @param setting
+         *            jquery参数
          */
         ajaxLocal: function (url, data, setting) {
             return this.ajax(url, data, setting, true);
         },
         /**
          * 文件上传
-         * @param {Object} uri 地址
-         * @param {Object} data
-         * @param {Object} setting
+         *
+         * @param {Object}
+         *            uri 地址
+         * @param {Object}
+         *            data
+         * @param {Object}
+         *            setting
          */
-        ajaxUploadFileUrl: function (uri, data, setting, isL) {
+        ajaxUploadFileUrl: function (uri, data, setting) {
             var fileSetting = {
                 processData: false,
                 contentType: false,
-                dataType: "json"
+                dataType: "json",
+                type: "post"
             };
-            if (setting !== null) {
+            if (setting != null) {
                 fileSetting = cm.merge(fileSetting, setting)
             }
-            return this.ajax(uri, data, fileSetting, isL);
+            return this.ajax(uri, data, fileSetting);
         },
         /**
          * 上传文件
          */
         ajaxUploadFiles: function (data, setting) {
-            return this.ajaxUploadFileUrl('/file/upload/batch', data, setting, true);
+            return this.ajaxUploadFileUrl('/file/upload/batch', data, setting);
         },
         /**
          * 上传文件
          */
-        ajaxUploadVideoFile: function (uri, data, setting, isL) {
-            return this.ajaxUploadFileUrl(uri, data, setting, isL);
+        ajaxUploadFilesV2: function (data, setting) {
+            return this.ajaxUploadFileUrl('/file/upload/v2/batch', data, setting);
+        },
+        /**
+         * APIColud上传文件
+         */
+        ajaxUploadFilePath: function (paths, sett) {
+            return this.ajax("/file/upload/batch", {files: paths}, sett, null, true);
+        },
+        /**
+         * APIColud上传文件
+         */
+        ajaxUploadFilePathVideo: function (paths, sett) {
+            return this.ajaxNoWait("/on/demand/trans/coding", {files: paths}, sett, null, true);
+        }
+        , /**
+         * APIColud上传文件
+         */
+        ajaxUploadVideoAsync: function (paths, sett) {
+            return this.ajaxNoWait("/video/release/async/upload/notify", {videoFile: paths}, sett, null, true);
         },
         /**
          * json弹出消息提示框
+         *
          * @param data
          */
         ajaxAlert: function (data) {
-            alert(data.msg);
-        },
+            alert(data.msg || "请求错误");
+        }
+        ,
         ajaxUserInfo: function (data) {
-            return this.ajax("/user/find/user", data);
-        },
+            return this.ajax("/user/personal/info", data);
+        }
+        ,
+        userInfo: function (id, ok) {
+            Project.ajax('/user/get/user/by/id', {
+                userId: id
+            }).ajaxOK(function (d) {
+                if (ok) ok(d.data);
+            }, false, false, function () {
+                alert("用户信息获取失败");
+            });
+        }
+        ,
         /**
          * 用户列表
-         * @param data 参数
+         *
+         * @param data
+         *            参数
          * @returns {*}
          */
         ajaxUserList: function (data) {
             return this.ajax("/user/selects/vague", data);
-        },
+        }
+        ,
+        /**
+         * 获取URL分割符号
+         * @param {Object} callback 回调
+         */
+        getUrlSplit: function (callback, error) {
+            this.ajax('/common/config/url/split').ajaxOK(function (data) {
+                if (callback) callback(data.data);
+            }, false, false, function (d) {
+                if (error) error(d.msg);
+            });
+        }
+        ,
         /**
          * 分页设置
          */
         ajaxPageSet: function (pageSize, data) {
             data = data || {};
             return data.pageSize = pageSize;
-        },
+        }
+        ,
+        /**
+         * 资金记录
+         * @param {Object} data
+         */
+        ajaxMoneyRecord: function (data) {
+            return this.ajax('/money/record/get/list/type', data);
+        }
+        ,
         getUser: function () {
             try {
                 return JSON.parse(localStorage.user);
             } catch (e) {
                 console.log(e);
             }
-        },
+        }
+        ,
         getUserAttr: function (attr) {
             var user = this.getUser();
             if (user != null) {
                 return user[attr];
             }
-        },
+        }
+        ,
         getOpenId: function () {
             return this.getUserAttr("openId");
         }
-    };
+        ,
+        /**
+         * 纺织列表
+         * @param {Object} data 参数
+         * @param {Object} st 设置
+         */
+        ajaxSupplyPage: function (data, st) {
+            data = data || {};
+            var it = bs.supplyIt();
+            if (it.listParam) data = $.extend(true, it.listParam, data);
+            return this.ajax(bs.supplyIt().listUri, data, st);
+        }
+        ,
+        /**
+         * 轮播图
+         * @param {Object} data 数据
+         * @param {Object} setting 设置
+         */
+        ajaxBanner: function (data, type, setting) {
+            type = type || "0";
+            data = data || {};
+            var typeName = "type";
+            if (!data[typeName]) data[typeName] = type;
+            return this.ajax('/each/picture/get/list', data, setting);
+        }
+        ,
+        /**
+         * cookie存token
+         * @param {Object} token
+         */
+        loginCookie: function (token) {
+            cm.setCookie(TOKEN_COOKIE_NAME, token);
+        }
+        ,
+        /**
+         * COOOKIE获取令牌
+         */
+        getToken: function () {
+            return cm.getCookie(TOKEN_COOKIE_NAME);
+        }
+        ,
+        /**
+         * 註銷對login的操作
+         */
+        logoutCookie: function () {
+            cm.removeCookie(TOKEN_COOKIE_NAME);
+        }
+        ,
+        /**
+         * 修改用戶信息
+         */
+        ajaxUpdateUser: function (data, setting) {
+            return this.ajax('/user/update/personal/info', data, setting);
+        }
+        ,
+        /**
+         * 地区详情
+         * @param data 参数
+         * @param setting 其他
+         * @returns {*} then
+         */
+        ajaxRegionInfo: function (data, setting) {
+            return this.ajax('/region/select/by/county/code', data, setting);
+        }
+        ,
+        /**
+         * 地区详情参数COde
+         * @param code 代码
+         * @returns {*} then
+         */
+        ajaxRegionInfoCode: function (code) {
+            return this.ajaxRegionInfo({code: code});
+        }
+        ,
+        /**
+         * 登录框弹出
+         */
+        loginAlert: function () {
+            $("body").append("<div id='mask'></div>");
+            $(".mm_denglu").show();
+
+            // 登录隐藏
+            $("#mask").on('click', function () {
+                $(this).remove();
+                $(".mm_denglu").hide();
+            });
+        }
+    }
+    ;
     global.project = project;
-    global.Project = new project("API", "ADMIN");
+    global.Project = new project("API");
 })(window);
 
 if (promise) {
     /**
      * AJAX数据返回处理
-     * @param code  code码
-     * @param callback 回调
-     * @param isAlert 是否弹出消息
-     * @param alert 弹出消息
-     * @param notFn code不等回调
+     *
+     * @param code
+     *            code码
+     * @param callback
+     *            回调
+     * @param codeAlert
+     *            是否弹出消息
+     * @param alert
+     *            弹出消息
+     * @param notFn
+     *            code不等回调
+     * @param skipEmpty 跳过空数据
      */
-    promise.Promise.prototype.ajax = function (code, callback, isAlert, alert, notFn) {
-        this.ajaxV2(code, callback, function (data) {
-            if (isAlert == true) {
-                Project.ajaxAlert(data);
-            }
-            if (notFn != null) notFn();
-        }, alert);
+    promise.Promise.prototype.ajax = function (code, callback, notFn, alert, skipEmpty, codeAlert) {
+        this.ajaxV2(code, callback, notFn, alert, skipEmpty, codeAlert);
     };
 
     /**
      * AJAX数据返回处理
-     * @param code  code码
-     * @param callback 回调
-     * @param notFn code不等回调
-     * @param alert 弹出消息
+     *
+     *            code码
+     * @param code JSON_CODE
+     * @param callback
+     *            回调
+     * @param notFn
+     *            code不等回调
+     * @param alert
+     *            弹出消息
+     * @param skipEmpty 跳过空数据
+     * @param codeAlert 符合code弹出
      */
-    promise.Promise.prototype.ajaxV2 = function (code, callback, notFn, alert) {
+    promise.Promise.prototype.ajaxV2 = function (code, callback, notFn, alert, skipEmpty, codeAlert) {
         this.then(function (data) {
-            if (data.code == null) {
-                if (callback) callback(data);
-                return this;
-            }
-            if (data.code == "OVERTIME") {
-                top.location = "../to/login";
-            }
-            if (data.code == code) {
-                if (callback) callback(data);
-                if (alert == true) {
-                    Project.ajaxAlert(data);
+                function error() {
+                    if (alert === undefined || alert === true) Project.ajaxAlert(data);
+                    if (notFn && typeof notFn === "function") notFn(data);
                 }
-            } else {
-                if (notFn) notFn(data);
+
+                var _code = data.code;
+                if (_code === code) {
+                    if (codeAlert) Project.ajaxAlert(data);
+                    if (callback) callback(data);
+                } else if (_code === "EMPTY") {
+                    if (skipEmpty) return;
+                    error();
+                } else if (_code === "OVERTIME") {
+                    //noinspection JSUnresolvedVariable
+                    if (!window.noLogin) toLogin();
+                    //location.href = dowAppUrl;
+                } else {
+                    error();
+                }
             }
-        });
+        );
     };
 
     /**
      * 数据成功返回处理
-     * @param callback 成功回调
-     * @param isAlert 是否弹出消息
-     * @param errorAlert 是否弹出错误消息
-     * @param notSuccess 不成功回调
      */
-    promise.Promise.prototype.ajaxOK = function (callback, isAlert, errorAlert, notSuccess) {
-        if (errorAlert == null) {
-            errorAlert = true;
-        }
-        this.ajax("SUCCESS", callback, errorAlert, isAlert, notSuccess);
+    promise.Promise.prototype.ajaxOK = function (callback, codeAlert, alert, notFn, skipEmpty) {
+        this.ajax("SUCCESS", callback, notFn, alert, skipEmpty, codeAlert);
     };
+
+    /**
+     * 数据成功返回处理
+     */
+    promise.Promise.prototype.okSkipEm = function (callback, codeAlert, alert, notFn) {
+        this.ajaxOK(function (data) {
+            if (callback) callback(data.data);
+        }, codeAlert, alert, notFn, true);
+    };
+
     /**
      * 数据失败返回处理
-     * @param callback 回调
-     * @param isAlert 是否弹出消息
+     *
+     * @param callback
+     *            回调
+     * @param isAlert
+     *            是否弹出消息
      */
     promise.Promise.prototype.ajaxFail = function (callback, isAlert) {
         this.ajax("FAIL", callback, isAlert);
     };
     /**
      * 数据为空返回处理
-     * @param callback 回调
-     * @param isAlert 是否弹出消息
+     *
+     * @param callback
+     *            回调
+     * @param isAlert
+     *            是否弹出消息
      */
     promise.Promise.prototype.ajaxEmpty = function (callback, isAlert) {
         this.ajax("EMPTY", callback, isAlert);
     };
     /**
      * 参数不合法返回处理
-     * @param callback 回调
-     * @param isAlert 是否弹出消息
+     *
+     * @param callback
+     *            回调
+     * @param isAlert
+     *            是否弹出消息
      */
     promise.Promise.prototype.ajaxParam = function (callback, isAlert) {
         this.ajax("PARAMETER_INVALID", callback, isAlert);
     };
-}
-if (window.enumDisplay) {
-    window.Enum = new window.enumDisplay("/enum/data");
-    if (template) {
-        template.helper("$enumValue", Enum.value);
-    }
 }
 if (template) {
     template.helper("$page", function (page, number) {
@@ -305,88 +639,4 @@ if (template) {
         page.pageNum = number;
         return JSON.stringify(page);
     });
-}
-
-//附件上传
-//初始化fileinput控件
-function initFileInput(fileuri, yulanimg) {
-    $(":input[type='file']").attachsvr({
-        script: "/api/json/file/upload/batch",
-        uploadkey: "files",
-        filetype: [".jpg", ".png", ".jpeg", ".bmp"],
-
-        onComplete: function (json) {
-            var data = JSON.parse(json.data);
-            if (data.success == true) {
-                //$("#"+divUploadWrap).css("background-image","");
-                //$("#"+fileuri).text('');
-                //i表示在data中的索引位置，n表示包含的信息的对象
-                //$("#"+yulanimg).html('');
-                var filespanval = $("#" + fileuri).text();
-                $.each(data.data, function (i, n) {
-                    $("#" + yulanimg).append('<img id="fileimgid" style="width: 250px;height: 250px;padding-left: 5px;padding-bottom: 5px;padding-top: 10px;" src="' + n + '">');
-                    if (filespanval != undefined && filespanval != null && filespanval != '') {
-                        $("#" + fileuri).text(filespanval + "|||" + n);
-                    } else {
-                        $("#" + fileuri).text(n);
-                    }
-                });
-            } else {
-                alert("上传失败");
-            }
-
-        },
-        onProgress: function (xhr) {
-            //console.log(xhr);
-            //console.log("progress,在这里可以添加loading 效果",parseInt(xhr.loaded/xhr.total*100)+"%")
-            $('#continuefile').text(parseInt(xhr.loaded / xhr.total * 100) + "%");
-        },
-        onCheck: function (file) {
-            console.log(file);
-            return true;
-        },
-        onError: function (e) {
-            console.log("error", e)
-        },
-        ctxdata: {
-            "参数1": "参数1的值",
-            "参数2": "参数2",
-        }
-
-    });
-}
-
-//时间格式化
-Date.prototype.pattern = function (fmt) {
-    var o = {
-        "M+": this.getMonth() + 1, //月份
-        "d+": this.getDate(), //日
-        "h+": this.getHours(), //小时
-        "H+": this.getHours(), //小时
-        "m+": this.getMinutes(), //分
-        "s+": this.getSeconds(), //秒
-        "q+": Math.floor((this.getMonth() + 3) / 3), //季度
-        "S": this.getMilliseconds() //毫秒
-    };
-    var week = {
-        "0": "/u65e5",
-        "1": "/u4e00",
-        "2": "/u4e8c",
-        "3": "/u4e09",
-        "4": "/u56db",
-        "5": "/u4e94",
-        "6": "/u516d"
-    };
-    if (/(y+)/.test(fmt)) {
-        fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
-    }
-    if (/(E+)/.test(fmt)) {
-        fmt = fmt.replace(RegExp.$1, ((RegExp.$1.length > 1) ? (RegExp.$1.length > 2 ? "/u661f/u671f" : "/u5468") : "") + week[this.getDay() + ""]);
-    }
-    for (var k in o) {
-        if (new RegExp("(" + k + ")").test(fmt)) {
-            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
-        }
-    }
-    return fmt;
 }
