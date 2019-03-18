@@ -1,3 +1,13 @@
+function showProgress() {
+}
+
+function toast(msg) {
+    alert(msg);
+}
+
+function hideProgress() {
+}
+
 Number.prototype.toFixed = function (len) {
     var add = 0;
     var s;
@@ -37,7 +47,7 @@ String.prototype = {
     },
     isEmpty: function () {
         var string = this;
-        if (typeof(string) == "undefined" || string == "" || string == null) {
+        if (typeof (string) == "undefined" || string == "" || string == null) {
             return true;
         }
         string += "";
@@ -906,7 +916,7 @@ String.prototype.startWith = function (compareStr) {
             return true;
         },
         stringIsEmpty: function (string) {
-            if (typeof(string) == "undefined" || string == "" || string == null) {
+            if (typeof (string) == "undefined" || string == "" || string == null) {
                 return true;
             }
             string += "";
