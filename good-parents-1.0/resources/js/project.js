@@ -29,10 +29,10 @@
             localStorage.removeItem(frontColorKey);
             /**
              * if (color == null) { Project.ajax("/config/front/color", {}, {
-			 * async: false }).ajaxOK(function (data) {
-			 * localStorage[frontColorKey] = data.data; }, false, false); }
+             * async: false }).ajaxOK(function (data) {
+             * localStorage[frontColorKey] = data.data; }, false, false); }
              * $("head").append($('<style>.public-red{background:' + color + '
-			 * !important;}</style>'));
+             * !important;}</style>'));
              */
         },
         /**
@@ -182,6 +182,12 @@
                 });
             }
             return p;
+        },
+        /**
+         * 上传文件
+         */
+        ajaxUploadVideoFile: function (uri, data, setting, isL) {
+            return this.ajaxUploadFileUrl(uri, data, setting, isL);
         },
         globalAdmin: function (type, last) {
             last = last || "";
