@@ -197,31 +197,74 @@
                 <ul>
                     <li class="tips_li"><a
                             data-href="${path}/base/list?type=${baseEntityPackage}Album"
-                            data-title="相册列表" href="javascript:void(0);">相册列表</a>
+                            data-title="相册列表" href="javascript:void(0);">列表</a>
                     </li>
                     <li class="tips_li"><a
                             data-href="${path}/base/list?type=${baseEntityPackage}AlbumPhoto"
-                            data-title="照片列表" href="javascript:void(0);">照片列表</a>
+                            data-title="相册照片列表" href="javascript:void(0);">照片列表</a>
                     </li>
                     <li class="tips_li"><a
                             data-href="${path}/base/list?type=${baseEntityPackage}AlbumClassify"
-                            data-title="分类" href="javascript:void(0);">分类</a>
+                            data-title="分相册类" href="javascript:void(0);">分类</a>
                     </li>
                     <li class="tips_li"><a
-                            data-href="${path}/base/list?type=${baseEntityPackage}AlbumComment"
+                            data-href="$相册{path}/base/list?type=${baseEntityPackage}AlbumComment"
                             data-title="评论" href="javascript:void(0);">评论</a>
                     </li>
                     <li class="tips_li"><a
                             data-href="${path}/base/list?type=${baseEntityPackage}AlbumStatisticalPraise"
-                            data-title="点赞" href="javascript:void(0);">点赞</a>
+                            data-title="相册点赞" href="javascript:void(0);">点赞</a>
                     </li>
                     <li class="tips_li"><a
                             data-href="${path}/base/list?type=${baseEntityPackage}AlbumStatisticalClick"
-                            data-title="点击量" href="javascript:void(0);">点击量</a>
+                            data-title="相册点击量" href="javascript:void(0);">点击量</a>
                     </li>
                     <li class="tips_li"><a
                             data-href="${path}/base/list?type=${baseEntityPackage}AlbumCommentPraise"
-                            data-title="点击量" href="javascript:void(0);">评论点赞</a>
+                            data-title="相册评论点赞" href="javascript:void(0);">评论点赞</a>
+                    </li>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}AlbumClassify"
+                            data-title="相册分类" href="javascript:void(0);">分类</a>
+                    </li>
+                </ul>
+
+            </dd>
+        </dl>
+
+        <dl id="menu-comments">
+            <dt class="tips"><i class="Hui-iconfont">&#xe622;</i> 朋友圈<i
+                    class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}CircleOfFriends"
+                            data-title="朋友圈列表" href="javascript:void(0);">列表</a>
+                    </li>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}CircleOfFriendsPhoto"
+                            data-title="朋友圈照片列表" href="javascript:void(0);">照片列表</a>
+                    </li>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}CircleOfFriendsClassify"
+                            data-title="朋友圈分类" href="javascript:void(0);">分类</a>
+                    </li>
+                    <li class="tips_li"><a
+                            data-href="$朋友圈{path}/base/list?type=${baseEntityPackage}CircleOfFriendsComment"
+                            data-title="评论" href="javascript:void(0);">评论</a>
+                    </li>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}CircleOfFriendsStatisticalPraise"
+                            data-title="朋友圈点赞" href="javascript:void(0);">点赞</a>
+                    </li>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}CircleOfFriendsStatisticalClick"
+                            data-title="朋友圈点击量" href="javascript:void(0);">点击量</a>
+                    </li>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}CircleOfFriendsCommentPraise"
+                            data-title="朋友圈评论点赞" href="javascript:void(0);">评论点赞</a>
                     </li>
                 </ul>
 
