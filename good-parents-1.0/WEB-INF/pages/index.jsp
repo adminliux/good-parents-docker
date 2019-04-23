@@ -144,7 +144,7 @@
              </dd>
          </dl>--%>
         <dl id="menu-comments">
-            <dt class="tips"><i class="Hui-iconfont">&#xe622;</i> 用户资金<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            <dt class="tips"><i class="Hui-iconfont">M</i> 用户资金<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
             </dt>
             <dd>
                 <ul>
@@ -161,7 +161,7 @@
             </dd>
         </dl>
         <dl id="menu-comments">
-            <dt class="tips"><i class="Hui-iconfont">&#xe622;</i> 签到管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            <dt class="tips"><i class="Hui-iconfont">S</i> 签到管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
             </dt>
             <dd>
                 <ul>
@@ -190,8 +190,7 @@
             </dd>
         </dl>
         <dl id="menu-comments">
-            <dt class="tips"><i class="Hui-iconfont">&#xe622;</i> 相册<i
-                    class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            <dt class="tips"><i class="Hui-iconfont">A</i> 相册<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
             </dt>
             <dd>
                 <ul>
@@ -233,8 +232,7 @@
         </dl>
 
         <dl id="menu-comments">
-            <dt class="tips"><i class="Hui-iconfont">&#xe622;</i> 朋友圈<i
-                    class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            <dt class="tips"><i class="Hui-iconfont">F</i> 朋友圈<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
             </dt>
             <dd>
                 <ul>
@@ -246,13 +244,10 @@
                             data-href="${path}/base/list?type=${baseEntityPackage}CircleOfFriendsPhoto"
                             data-title="朋友圈照片列表" href="javascript:void(0);">照片列表</a>
                     </li>
-                    <li class="tips_li"><a
-                            data-href="${path}/base/list?type=${baseEntityPackage}CircleOfFriendsClassify"
-                            data-title="朋友圈分类" href="javascript:void(0);">分类</a>
                     </li>
                     <li class="tips_li"><a
-                            data-href="$朋友圈{path}/base/list?type=${baseEntityPackage}CircleOfFriendsComment"
-                            data-title="评论" href="javascript:void(0);">评论</a>
+                            data-href="${path}/base/list?type=${baseEntityPackage}CircleOfFriendsComment"
+                            data-title="朋友圈评论" href="javascript:void(0);">评论</a>
                     </li>
                     <li class="tips_li"><a
                             data-href="${path}/base/list?type=${baseEntityPackage}CircleOfFriendsStatisticalPraise"
@@ -272,7 +267,7 @@
         </dl>
 
         <dl id="menu-comments">
-            <dt class="tips"><i class="Hui-iconfont">&#xe622;</i> 邀请管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            <dt class="tips"><i class="Hui-iconfont">T</i> 邀请管理<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
             </dt>
             <dd>
                 <ul>
@@ -289,7 +284,7 @@
             </dd>
         </dl>
         <dl id="menu-comments">
-            <dt class="tips"><i class="Hui-iconfont">&#xe622;</i> 视频管理2<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            <dt class="tips"><i class="Hui-iconfont">V</i> 视频查询<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
             </dt>
             <dd>
                 <ul>
@@ -302,7 +297,7 @@
             </dd>
         </dl>
         <dl id="menu-comments">
-            <dt class="tips"><i class="Hui-iconfont">&#xe622;</i> 系统配置<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            <dt class="tips"><i class="Hui-iconfont">S</i> 系统配置<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
             </dt>
             <dd>
                 <ul>
