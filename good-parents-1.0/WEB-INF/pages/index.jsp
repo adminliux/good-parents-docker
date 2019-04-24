@@ -232,6 +232,101 @@
         </dl>
 
         <dl id="menu-comments">
+            <dt class="tips"><i class="Hui-iconfont">M</i> 上线统计<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}UserStartApp"
+                            data-title="上线统计列表" href="javascript:void(0);">列表</a>
+                    </li>
+                </ul>
+
+            </dd>
+        </dl>
+        <dl id="menu-comments">
+            <dt class="tips"><i class="Hui-iconfont">P</i> 推送<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}UserPush"
+                            data-title="设备绑定列表" href="javascript:void(0);">设备绑定列表</a>
+                    </li>
+                </ul>
+            </dd>
+        </dl>
+        <dl id="menu-comments">
+            <dt class="tips"><i class="Hui-iconfont">PO</i> 用户位置<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}UserPosition"
+                            data-title="用户位置列表" href="javascript:void(0);">列表</a>
+                    </li>
+                </ul>
+            </dd>
+        </dl>
+
+        <dl id="menu-comments">
+            <dt class="tips"><i class="Hui-iconfont">GV</i> 生成视频<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}PictureAlbumTemplate"
+                            data-title="模版列表" href="javascript:void(0);">模版列表</a>
+                    </li>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}Music"
+                            data-title="音乐模版列表" href="javascript:void(0);">音乐模版列表</a>
+                    </li>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}MusicKeyword"
+                            data-title="音乐关键字" href="javascript:void(0);">音乐关键字</a>
+                    </li>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}PictureAlbumTemplateKeyword"
+                            data-title="模版关键字" href="javascript:void(0);">模版关键字</a>
+                    </li>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}MusicAuthor"
+                            data-title="音乐作家" href="javascript:void(0);">音乐作家</a>
+                    </li>
+                </ul>
+            </dd>
+        </dl>
+
+        <dl id="menu-comments">
+            <dt class="tips"><i class="Hui-iconfont">G</i> 获取记录<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}UserStartApp"
+                            data-title="获取列表" href="javascript:void(0);">UserGiftSteal</a>
+                    </li>
+                </ul>
+
+            </dd>
+        </dl>
+
+        <dl id="menu-comments">
+            <dt class="tips"><i class="Hui-iconfont">M</i> 留言板<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
+            </dt>
+            <dd>
+                <ul>
+                    <li class="tips_li"><a
+                            data-href="${path}/base/list?type=${baseEntityPackage}UserLeavingMessage"
+                            data-title="留言板列表" href="javascript:void(0);">列表</a>
+                    </li>
+                </ul>
+
+            </dd>
+        </dl>
+
+        <dl id="menu-comments">
             <dt class="tips"><i class="Hui-iconfont">F</i> 朋友圈<i class="Hui-iconfont menu_dropdown-arrow">&#xe6d5;</i>
             </dt>
             <dd>
